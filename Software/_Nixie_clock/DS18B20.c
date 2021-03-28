@@ -1,105 +1,118 @@
-﻿#include "DS18B20.h"
+﻿#include "ds18b20.h"
 
-char dt_testdevice(void) //dt - digital thermometer | определим, есть ли устройство на шине
+/*dt - digital thermometer
+  find device
+*/
+char dt_testdevice(void)
 {
-	char stektemp=SREG;//сохраним значение стека
-	cli(); //запрещаем прерывания
+	/*Save to stack*/
+	char stacktemp = SREG;
+	cli();
 	char dt;
-	DDRTEMP |= 1<<BITTEMP; //притягиваем шину
-	_delay_us(485);//задержка как минимум 480 микросекунд
-	DDRTEMP &= ~(1<<BITTEMP);//отпускаем шину
-	_delay_us(65);//задержка как минимум 60 микросекунд
-	if((PINTEMP & (1<<BITTEMP)) ==0x00)//проверяем, ответит ли утройство
-		dt=1;//устройство есть
-	else dt=1;//устройства нет
-	SREG=stektemp;//вернем показания стека на место
-	_delay_us(420);//задержка минимум 480 микросекунд, но хватит и 420, т.к. это с учетом времени прошедших команд
+	DDRTEMP |= 1<<BITTEMP;
+	_delay_us(485);
+	DDRTEMP &= ~(1<<BITTEMP);
+	_delay_us(65);
+	/*Check if sensor responds*/
+	if((PINTEMP & (1<<BITTEMP)) == 0x00)
+		dt = 1;
+	else 
+		dt = 1;
+	/*Return stack value*/
+	SREG = stacktemp;
+	_delay_us(420);
 	return dt;
 }
 
-// функция отправки бита на устройство
 void dt_sendbit (char bt)
 {
-	char stektemp=SREG;//сохраним значение стека
-	cli(); //запрещаем прерывания
-	DDRTEMP |= 1<<BITTEMP; //притягиваем шину
+	/*Save to stack*/
+	char stacktemp = SREG;
+	cli();
+	DDRTEMP |= 1<<BITTEMP;
 	_delay_us(2);
 	if(bt)
-		DDRTEMP &= ~(1<<BITTEMP);//отпускаем шину
+		DDRTEMP &= ~(1<<BITTEMP);
 	_delay_us(65);
-	DDRTEMP &= ~(1<<BITTEMP);//отпускаем шину
-	SREG=stektemp;//вернем показания стека на место
+	DDRTEMP &= ~(1<<BITTEMP);
+	/*Return stack value*/
+	SREG = stacktemp;
 }
 
-//функция отправки байта на устройство
 void dt_sendbyte(unsigned char bt)
 {
 	char i;
-	for(i = 0; i < 8; i++)//посылаем отдельно каждый бит
+	for(i = 0; i < 8; i++)
 	{
-		if((bt & (1<<i)) == 1<<i)//посылаем 1
-		dt_sendbit(1);
-		else//посылаем 0
-		dt_sendbit(0);
+		if((bt & 1<<i) == 1<<i)
+			dt_sendbit(1);
+		else
+			dt_sendbit(0);
 	}
 }
 
-//функция чтения одного бита с устройства
-char dt_readbit (void)
+
+char dt_readbit(void)
 {
-	char stektemp=SREG;//сохраним значение стека
-	cli(); //запрещаем прерывания
-	char bt; //переменная хранения бита
-	DDRTEMP |= 1<<BITTEMP; //притягиваем шину
+	/*Save to stack*/	
+	char stacktemp = SREG;
+	cli();
+	char bt;
+	DDRTEMP |= 1<<BITTEMP;
 	_delay_us(2);
-	DDRTEMP &= ~(1<<BITTEMP);//отпускаем шину
+	DDRTEMP &= ~(1<<BITTEMP);
 	_delay_us(13);
-	bt=(PINTEMP & (1<<BITTEMP))>>BITTEMP; //читаем бит
+	bt = (PINTEMP & 1<<BITTEMP)>>BITTEMP;
 	_delay_us(45);
-	SREG=stektemp;//вернем показания стека на место
+	/*Return stack value*/
+	SREG = stacktemp;
 	return bt;
 }
 
-//функция чтения байта с устройства
 unsigned char dt_readbyte()
 {
-	char c=0;
+	char c = 0;
 	char i;
 	for(i = 0; i < 8; i++)
-	c|= dt_readbit()<<i;//читаем бит
+	c |= dt_readbit()<<i;
 	return c;
 }
 
-//функция преобразования показаний датчика в температуру
-int dt_check(void)
+/*raw data to temperature*/
+int dt_check(Temp_t *tempr)
 {
-	unsigned char bt; //переменная для считывания бита
-	unsigned int tt=0;
-	if(dt_testdevice()==1)//если устройство нашлось
+	unsigned char bt;
+	if(dt_testdevice() == 1)
 	{
-		dt_sendbyte(NOID);//пропустить идентификацию, тк у нас только одно устройство на шине
-		dt_sendbyte(T_CONVERT);//измеряем температуру
-		_delay_ms(100);//9 битный режим преобразования - 100ms
-		dt_testdevice();//снова используем те же манипуляции с шиной что и при проверке ее присутствия
+		/*Skip identification*/
 		dt_sendbyte(NOID);
-		dt_sendbyte(READ_DATA);//передадим байты устройству (в первых двух байтах температура)
-		bt = dt_readbyte(); //читаем младший бит
-		tt = dt_readbyte(); //читаем бит MS
-		tt = (tt<<8)|bt;//сдвигаем старший влево, младнший пишем на его место, тем самым получаем общий результат
+		/*Start temperature measurement*/
+		dt_sendbyte(T_CONVERT);
+		/*9 bits conversins - so 100ms*/
+		_delay_ms(100);
+		dt_testdevice();
+		dt_sendbyte(NOID);
+		/*Send data to master*/
+		dt_sendbyte(READ_DATA);
+		/*Read LSB*/
+		bt = dt_readbyte();
+		/*Read MSB*/
+		tempr->t_raw = dt_readbyte();
+		tempr->t_raw = tempr->t_raw<<8 | bt;
 	}
-	return tt;
+	return tempr->t_raw;
 }
 
-//преобразование температуры в единицы и десятые доли
-char converttemp (unsigned int tt)
+/*convert to float-like - XX.X °C*/
+char converttemp(unsigned int t_raw)
 {
-	char t = tt>>3;//сдвиг - целую часть получим сдвинутую 1 байт влево, а дробную в самом младшем байте
-	return t;
+	char t_f = t_raw>>3;
+	return t_f;
 }
 
-//преобразование температуры в единицы
-char convert (unsigned int tt)
+/*convert to integer-like - XX °C*/
+char convert(unsigned int t_raw)
 {
-	char t_check = tt>>4;//отсекаем до целых значений
-	return t_check;
+	char t_int = t_raw>>4;
+	return t_int;
 }

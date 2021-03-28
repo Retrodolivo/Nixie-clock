@@ -3,17 +3,17 @@
 
 #include "main.h"
 
-#define NOID 0xCC // Пропустить индентификацию
-#define T_CONVERT 0x44 // Код измерения температуры
-#define READ_DATA 0xBE // Передача байтов ведущему
+#define NOID				0xCC /*Skip identification*/
+#define T_CONVERT			0x44 /*Initiate temperature convert*/
+#define READ_DATA			0xBE /*Transfer data to master*/
 
-#define PORTTEMP PORTB
-#define DDRTEMP DDRB
-#define PINTEMP PINB
-#define BITTEMP 4
+#define PORTTEMP	PORTB
+#define DDRTEMP		DDRB
+#define PINTEMP		PINB
+#define BITTEMP		4
 
-int dt_check(void); //функция преобразования показаний датчика в температуру
-char converttemp (unsigned int tt); //преобразование температуры в единицы и десятые доли
-char convert (unsigned int tt); //преобразование температуры в единицы 
+int dt_check(Temp_t *tempr);
+char converttemp(unsigned int t_raw);
+char convert(unsigned int t_raw);
 
 #endif /* DS18B20_H_ */
