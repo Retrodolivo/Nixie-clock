@@ -1,108 +1,108 @@
-#include "RTC_DS3231.h"
+#include "rtc_ds3231.h"
 
-unsigned char clock_edit_mode;
+extern enum Clock_edit_mode clock_edit_mode;
 
-void RTC_init(void)
+void rtc_init(void)
 {
-	I2C_start_condition();
-	I2C_sendbyte(0b11010000);//передача адреса устройства, режим записи
-	I2C_sendbyte(0x0F);//обращаемся к регистру управления по адресу 0x0F
-	I2C_sendbyte(0b00001000);//включаем выход на 32кГц
-	I2C_stop_condition();		
+	i2c_start();
+	i2c_sendbyte(DS3231_WRITE_ADDR);
+	i2c_sendbyte(DS3231_STATUS_ADDR);
+	i2c_sendbyte(DS3231_STATUS_EN32KHZ);
+	i2c_stop();		
 }
 
-unsigned char dec_to_bin(unsigned char c)
+void rtc_set_time(Time_t *t, uint8_t hour, uint8_t min)
 {
-	unsigned char ch = ((c/10)<<4)|(c%10);
-	return ch;
+	i2c_start();
+	i2c_sendbyte(DS3231_WRITE_ADDR);	
+	i2c_sendbyte(DS3231_TIME_MIN_ADDR);
+	i2c_sendbyte(dec_to_bin(t->min));
+	i2c_sendbyte(dec_to_bin(t->hour));
+	i2c_stop();
 }
 
-unsigned char bin_to_dec(unsigned char c)
-{
-	unsigned char ch = ((c>>4)*10+(0b00001111&c));
-	return ch;
-}
-
-void RTC_set_time(unsigned char hour, unsigned char min)
-{
-	I2C_start_condition();
-	I2C_sendbyte(0b11010000);//передача адреса устройства, режим записи
-	
-	//ячейки памяти хранения времени
-	I2C_sendbyte(0x01);//обращаемся по адресу регистра минут
-	I2C_sendbyte(dec_to_bin(min));//устанавливаем значения минут
-	I2C_sendbyte(dec_to_bin(hour));//обращаемся по адресу регистра часов, устанавливаем значение
-	I2C_stop_condition();
-}
-
-void RTC_read_time(void)
+void rtc_get_time(Time_t *t)
 {	
-	I2C_start_condition();
-	I2C_sendbyte(0b11010000);//передача адреса устройства, режим записи
-	I2C_sendbyte(0x00);
-	I2C_stop_condition();
-	I2C_start_condition();
-	I2C_sendbyte(0b11010001);//передача адреса устройства, режим чтения
-	sec = I2C_readbyte();
-	min = I2C_readbyte();
-	hour = I2C_readbyte();
+	i2c_start();
+	i2c_sendbyte(DS3231_WRITE_ADDR);
+	i2c_sendbyte(DS3231_TIME_CAL_ADDR);
+	i2c_stop();
+	i2c_start();
+	i2c_sendbyte(DS3231_READ_ADDR);
+	t->sec = i2c_readbyte();
+	t->min = i2c_readbyte();
+	t->hour = i2c_readbyte();
 }
 
-void SQW_set(void)
+void sqw_set(void)
 {
-	I2C_start_condition();
-	I2C_sendbyte(0b11010000);//передача адреса устройства, режим записи
-	I2C_sendbyte(0x0E);//обращаемся по адресу control register
-	I2C_sendbyte(0x00);//биты RS0 RS1 INTCN в 0
-	I2C_stop_condition();
+	i2c_start();
+	i2c_sendbyte(DS3231_WRITE_ADDR);
+	i2c_sendbyte(DS3231_CONTROL_ADDR);
+	/*Bits RS0 RS1 to LOW*/
+	i2c_sendbyte(0x00);					
+	i2c_stop();
 }
 
-void Modify_RTC_increment(void)
+void rtc_increment(Time_t *t)
 {
-	I2C_start_condition();
-	I2C_sendbyte(0b11010000);//передача адреса устройства, режим записи
+	i2c_start();
+	i2c_sendbyte(DS3231_WRITE_ADDR);//передача адреса устройства, режим записи
 	switch(clock_edit_mode)
 	{
 		case MODEHOUREDIT:
-			I2C_sendbyte(0x02);//Переходим по адресу 0x02 - часы 
-		if(hour < 23)
-			I2C_sendbyte(dec_to_bin(hour + 1));
+			i2c_sendbyte(DS3231_TIME_HOUR_ADDR);//Переходим по адресу 0x02 - часы 
+		if(t->hour < 23)
+			i2c_sendbyte(dec_to_bin(t->hour + 1));
 		else
-			I2C_sendbyte(dec_to_bin(0));
+			i2c_sendbyte(dec_to_bin(0));
 		break;
 		
 		case MODEMINEDIT:
-			I2C_sendbyte(0x01);//Переходим по адресу 0x01 - минуты 
-		if(min < 59)
-			I2C_sendbyte(dec_to_bin(min + 1));
+			i2c_sendbyte(DS3231_TIME_MIN_ADDR);
+		if(t->min < 59)
+			i2c_sendbyte(dec_to_bin(t->min + 1));
 		else
-			I2C_sendbyte(dec_to_bin(0));
+			i2c_sendbyte(dec_to_bin(0));
 		break;		
 	}
-	I2C_stop_condition();
+	i2c_stop();
 }
 
-void Modify_RTC_decrement(void)
+void rtc_decrement(Time_t *t)
 {
-	I2C_start_condition();
-	I2C_sendbyte(0b11010000);//передача адреса устройства, режим записи
+	i2c_start();
+	i2c_sendbyte(DS3231_WRITE_ADDR);
 	switch(clock_edit_mode)
 	{
 		case MODEHOUREDIT:
-			I2C_sendbyte(0x02);//Переходим по адресу 0x02 - часы
-		if(hour > 0)
-			I2C_sendbyte(dec_to_bin(hour - 1));
+			i2c_sendbyte(DS3231_TIME_HOUR_ADDR);
+		if(t->hour > 0)
+			i2c_sendbyte(dec_to_bin(t->hour - 1));
 		else
-			I2C_sendbyte(dec_to_bin(0));
+			i2c_sendbyte(dec_to_bin(0));
 		break;
 		
 		case MODEMINEDIT:
-			I2C_sendbyte(0x01);//Переходим по адресу 0x01 - минуты
-		if(min > 0)
-			I2C_sendbyte(dec_to_bin(min - 1));
+			i2c_sendbyte(DS3231_TIME_MIN_ADDR);
+		if(t->min > 0)
+			i2c_sendbyte(dec_to_bin(t->min - 1));
 		else
-			I2C_sendbyte(dec_to_bin(0));
+			i2c_sendbyte(dec_to_bin(0));
 		break;
 	}
-	I2C_stop_condition();
+	i2c_stop();
+}
+
+/*Utilities*/
+uint8_t dec_to_bin(uint8_t c)
+{
+	uint8_t ch = ((c/10)<<4)|(c%10);
+	return ch;
+}
+
+uint8_t bin_to_dec(uint8_t c)
+{
+	uint8_t ch = ((c>>4)*10+(0b00001111&c));
+	return ch;
 }
