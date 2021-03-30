@@ -12,8 +12,6 @@
 #define PINTEMP		PINB
 #define BITTEMP		4
 
-int dt_check(Temp_t *tempr);
-char converttemp(unsigned int t_raw);
-char convert(unsigned int t_raw);
+void dt_get_tempr(Temp_t *tempr, enum Decimal decimal_num);
 
 #endif /* DS18B20_H_ */

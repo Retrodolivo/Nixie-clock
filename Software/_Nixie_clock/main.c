@@ -1,76 +1,64 @@
 #include "main.h"
 
-unsigned char sec, min, hour;
-unsigned char clock_edit_mode;
-extern unsigned char clockmode;
-unsigned int tt = 0;
+enum i2c_speed_t		speed = Standart;
+enum Clock_edit_mode	clock_edit_mode = MODENONEEDIT;
+enum Clock_view_mode	clock_view_mode = MODETIMEVIEW;
+enum Decimal			decimal_num = One;
 
+Time_t t;
+Temp_t tempr;
+struct Indication indication;
 
-void port_ini()
+void init_routine(void)
 {
-	DDRD |= ((1<<DDRD0)|(1<<DDRD1)|(1<<DDRD2)|(1<<DDRD3));
-	PORTD = 0x00;
-	DDRC |= ((1<<DDRC0)|(1<<DDRC1)|(1<<DDRC2)|(1<<DDRC3));
-	PORTC = 0x00;
-	
-	//обработка выхода SQW
-	DDRD &= ~(1<<DDRD4);
-	PORTD &= ~(1<<PORTD4);
-	
-	DDRB |= 1<<DDRB5;
-	PORTB &= ~(1<<PORTB5); 
+	lamp_port_init();
+	buttons_port_init();
+	timer0_buttons_init();
+	timer1_indication_init();
+		
+	i2c_init(speed);
+	rtc_init();
+	sei();
+	//RTC_set_time(13,25);
 }
 
 int main(void)
 {
-	clock_edit_mode = MODENONEEDIT;
-	button_cnt = 0; //измеритель времени нажатия кнопки
-	port_ini();
-	button_port_ini();
-	button_timer_ini();
-	timer_ini();
-	sei();
-	I2C_init();
-	RTC_init();
-	SQW_set();
-	//RTC_set_time(13,25);//устанавливаем часы, затем минуты
+	init_routine();
 	
-    while (1) 
+    while(1) 
     {
-		RTC_read_time();
-		sec = bin_to_dec(sec);
-		min = bin_to_dec(min);
-		hour = bin_to_dec(hour);
-		
-		tt = converttemp(dt_check());
-		
-		if((clock_edit_mode != MODENONEEDIT)&&(!(PINB&(1<<PINB3))))
+		/*Fill data structs*/
+		rtc_get_time(&t);		
+		dt_get_tempr(&tempr, decimal_num);
+
+		/*Buttons handler*/
+		if(clock_edit_mode != MODENONEEDIT && BUTTON_UP_PRESSED)
 		{
-			Modify_RTC_increment();
+			rtc_increment(&t);
 			_delay_ms(300);
 		}
 		
-		if((clock_edit_mode != MODENONEEDIT)&&(!(PINB&(1<<PINB1))))
+		if(clock_edit_mode != MODENONEEDIT && BUTTON_DOWN_PRESSED)
 		{
-			Modify_RTC_decrement();
+			rtc_decrement(&t);
 			_delay_ms(300);
 		}
 		
 		if(clock_edit_mode == MODENONEEDIT)
 		{
-			if(clockmode == MODETIMEVIEW)
-				indicator_display(hour*100 + min, MODETIMEVIEW);
-			if(clockmode == MODETEMPERVIEW)
-				indicator_display((tt>>1)*100+((tt%2)*50), MODETEMPERVIEW);
+			if(clock_view_mode == MODETIMEVIEW)
+				display(indication, clock_view_mode);
+			if(clock_view_mode == MODETEMPERVIEW)
+				display(indication, clock_view_mode);
 		}
-		else if((clock_edit_mode == MODEHOUREDIT)||(clock_edit_mode == MODEMINEDIT))
-			indicator_display(hour*100 + min, MODETIMEVIEW);
-			
-		if((sec < 31) || (sec > 34)) 
-			clockmode = MODETIMEVIEW;
 		else
-			clockmode = MODETEMPERVIEW;
+			display(indication, clock_view_mode);
 		
-  
+		/*Every min show temperature*/	
+		if(t.sec < 31 || t.sec > 34) 
+			clock_view_mode = MODETIMEVIEW;
+		else
+			clock_view_mode = MODETEMPERVIEW;
     }
 }

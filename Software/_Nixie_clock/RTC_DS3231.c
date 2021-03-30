@@ -1,6 +1,19 @@
 #include "rtc_ds3231.h"
 
-extern enum Clock_edit_mode clock_edit_mode;
+/*Utilities*/
+static uint8_t dec_to_bin(uint8_t c)
+{
+	uint8_t ch = ((c / 10)<<4 | c % 10);
+	return ch;
+}
+
+static uint8_t bin_to_dec(uint8_t c)
+{
+	uint8_t ch = ((c>>4) * 10 + (0b00001111&c));
+	return ch;
+}
+/*RTC*/
+static void rtc_sqw_set(void);
 
 void rtc_init(void)
 {
@@ -8,7 +21,8 @@ void rtc_init(void)
 	i2c_sendbyte(DS3231_WRITE_ADDR);
 	i2c_sendbyte(DS3231_STATUS_ADDR);
 	i2c_sendbyte(DS3231_STATUS_EN32KHZ);
-	i2c_stop();		
+	i2c_stop();	
+	rtc_sqw_set();	
 }
 
 void rtc_set_time(Time_t *t, uint8_t hour, uint8_t min)
@@ -34,7 +48,7 @@ void rtc_get_time(Time_t *t)
 	t->hour = i2c_readbyte();
 }
 
-void sqw_set(void)
+static void rtc_sqw_set(void)
 {
 	i2c_start();
 	i2c_sendbyte(DS3231_WRITE_ADDR);
@@ -92,17 +106,4 @@ void rtc_decrement(Time_t *t)
 		break;
 	}
 	i2c_stop();
-}
-
-/*Utilities*/
-uint8_t dec_to_bin(uint8_t c)
-{
-	uint8_t ch = ((c/10)<<4)|(c%10);
-	return ch;
-}
-
-uint8_t bin_to_dec(uint8_t c)
-{
-	uint8_t ch = ((c>>4)*10+(0b00001111&c));
-	return ch;
 }

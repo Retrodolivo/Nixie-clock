@@ -3,12 +3,27 @@
 /*IN-12 lamp number*/
 unsigned char R1, R2, R3, R4, 
 			  lamp_num;
-			  
+
+void lamp_port_init(void)
+{
+	DECODER_DDR |= 1<<A0 | 1<<A1 | 1<<A2 | 1<<A3;
+	DECODER_PORT &= ~(1<<A0 | 1<<A1 | 1<<A2 | 1<<A3);
+	
+	IN_ANODE_DDR |= 1<<IN_R1 | 1<<IN_R2 | 1<<IN_R3 | 1<<IN_R4;
+	IN_ANODE_PORT &= ~(1<<IN_R1 | 1<<IN_R2 | 1<<IN_R3 | 1<<IN_R4);
+	
+	SQW_DDR &= ~(1<<SQW_PIN);
+	SQW_PORT &= ~(1<<SQW_PIN);
+	
+	INS_DDR |= 1<<INS_ANODE;
+	INS_PORT &= ~(1<<INS_ANODE);
+}
+		  
 /*
 	Decoder K155ID1
 	Set A0 - A3 inputs of K155ID1 according seg num
 */
-void segchar(unsigned char seg)
+static void segchar(unsigned char seg)
 {
 	switch(seg)
 	{
@@ -78,58 +93,55 @@ void timer1_indication_init(void)
 */
 ISR (TIMER1_COMPA_vect)
 {
-	if(lamp_num == 0)
+	switch(lamp_num)
 	{
-		IN_ANODE_PORT |=   1<<IN_R1; 
-		IN_ANODE_PORT &= ~(1<<IN_R4 | 1<<IN_R2 | 1<<IN_R3);
-		segchar(R1);
+		case 0:
+			IN_ANODE_PORT |=   1<<IN_R1;
+			IN_ANODE_PORT &= ~(1<<IN_R4 | 1<<IN_R2 | 1<<IN_R3);
+			segchar(R1);
+			/*Blink R1 R2 at clock edit mode = MODEHOUREDIT*/
+			if(clock_edit_mode == MODEHOUREDIT && SQW_PIN_LOW)
+				IN_ANODE_PORT &= ~(1<<IN_R1);
+			break;
 		
-		/*Blink R1 R2 at clock edit mode = MODEHOUREDIT*/
-		if(clock_edit_mode == MODEHOUREDIT && SQW_PIN_LOW)
-			IN_ANODE_PORT &= ~(1<<IN_R1);		
-	}
-	if(lamp_num == 1)
-	{
-		IN_ANODE_PORT |=   1<<IN_R2; 
-		IN_ANODE_PORT &= ~(1<<IN_R4 | 1<<IN_R1 | 1<<IN_R3);
-		segchar(R2);
+		case 1:
+			IN_ANODE_PORT |=   1<<IN_R2;
+			IN_ANODE_PORT &= ~(1<<IN_R4 | 1<<IN_R1 | 1<<IN_R3);
+			segchar(R2);
+			/*Blink R1 R2 at clock edit mode = MODEHOUREDIT*/
+			if(clock_edit_mode == MODEHOUREDIT && SQW_PIN_LOW)
+				IN_ANODE_PORT &= ~(1<<IN_R2);
+			break;
 		
-		/*Blink R1 R2 at clock edit mode = MODEHOUREDIT*/
-		if(clock_edit_mode == MODEHOUREDIT && SQW_PIN_LOW)
-			IN_ANODE_PORT &= ~(1<<IN_R2);
-	}
-	if(lamp_num == 2)
-	{
-		IN_ANODE_PORT |=   1<<IN_R3; 
-		IN_ANODE_PORT &= ~(1<<IN_R4 | 1<<IN_R2 | 1<<IN_R1);
-		segchar(R3);
+		case 2:
+			IN_ANODE_PORT |=   1<<IN_R3;
+			IN_ANODE_PORT &= ~(1<<IN_R4 | 1<<IN_R2 | 1<<IN_R1);
+			segchar(R3);
+			/*Blink R3 R4 at clock edit mode = MODEMINEDIT*/
+			if( clock_edit_mode == MODEMINEDIT && SQW_PIN_LOW)
+				IN_ANODE_PORT &= ~(1<<IN_R3);
+			break;
 		
-		/*Blink R3 R4 at clock edit mode = MODEMINEDIT*/
-		if( clock_edit_mode == MODEMINEDIT && SQW_PIN_LOW)
-			IN_ANODE_PORT &= ~(1<<IN_R3);		
-	}
-	if(lamp_num == 3)
-	{
-		IN_ANODE_PORT |=   1<<IN_R4; 
-		IN_ANODE_PORT &= ~(1<<IN_R2 | 1<<IN_R1 | 1<<IN_R3);
-		segchar(R4);
-		
-		/*Blink R3 R4 at clock edit mode = MODEMINEDIT*/	
-		if((clock_edit_mode == MODEMINEDIT)&& SQW_PIN_LOW)
-			IN_ANODE_PORT &= ~(1<<IN_R4);
-		if(clock_view_mode == MODETEMPERVIEW)
-			IN_ANODE_PORT &= ~(1<<IN_R4);		
-	}
-	if(lamp_num == 4)
-	{
-		/*Blink SQW RTC PIN at clock view mode = MODETEMPERVIEW*/
-		if(SQW_PIN_HIGH)
-			INS_PORT |= 1<<INS_ANODE;
-		else if(clock_view_mode != MODETEMPERVIEW)
-			INS_PORT &= ~(1<<INS_ANODE);
+		case 3:
+			IN_ANODE_PORT |=   1<<IN_R4;
+			IN_ANODE_PORT &= ~(1<<IN_R2 | 1<<IN_R1 | 1<<IN_R3);
+			segchar(R4);
+			/*Blink R3 R4 at clock edit mode = MODEMINEDIT*/
+			if((clock_edit_mode == MODEMINEDIT)&& SQW_PIN_LOW)
+				IN_ANODE_PORT &= ~(1<<IN_R4);
+			if(clock_view_mode == MODETEMPERVIEW)
+				IN_ANODE_PORT &= ~(1<<IN_R4);
+			break;
+				
+		case 4:
+			/*Blink SQW RTC PIN at clock view mode = MODETEMPERVIEW*/
+			if(SQW_PIN_HIGH)
+				INS_PORT |= 1<<INS_ANODE;
+			else if(clock_view_mode != MODETEMPERVIEW)
+				INS_PORT &= ~(1<<INS_ANODE);						
 	}
 	lamp_num++;
-	if(lamp_num > 4) 
+	if(lamp_num > 4)
 		lamp_num = 0;
 }
 

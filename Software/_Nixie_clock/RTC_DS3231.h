@@ -3,24 +3,13 @@
 
 #include "main.h"
 
-typedef struct
-{
-	uint8_t sec;
-	uint8_t min;
-	uint8_t hour;
-	uint8_t day;
-	uint8_t month;
-	uint16_t year;
-} Time_t;
+extern enum Clock_edit_mode clock_edit_mode;
 
 void rtc_init(void);
-void rtc_get_time(Time_t *t);
-uint8_t dec_to_bin(uint8_t c);
-uint8_t bin_to_dec(uint8_t c);
-void rtc_set_time(Time_t *t, uint8_t hour, uint8_t min);
-void sqw_set(void);
-void rtc_increment(Time_t *t);
-void rtc_decrement(Time_t *t);
+void rtc_get_time(Time_t *time);
+void rtc_set_time(Time_t *time, uint8_t hour, uint8_t min);
+void rtc_increment(Time_t *time);
+void rtc_decrement(Time_t *time);
 
 #define DS3231_WRITE_ADDR           0x68
 #define DS3231_READ_ADDR            0x69

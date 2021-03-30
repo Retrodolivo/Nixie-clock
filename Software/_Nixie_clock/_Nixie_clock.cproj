@@ -120,22 +120,22 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="button.c">
+    <Compile Include="buttons.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="button.h">
+    <Compile Include="buttons.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="DS18B20.c">
+    <Compile Include="ds18b20.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="DS18B20.h">
+    <Compile Include="ds18b20.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="eeprom.c">
+    <Compile Include="led.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="eeprom.h">
+    <Compile Include="led.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
@@ -144,22 +144,16 @@
     <Compile Include="main.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="nixie_led.c">
+    <Compile Include="rtc_ds3231.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="nixie_led.h">
+    <Compile Include="rtc_ds3231.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="RTC_DS3231.c">
+    <Compile Include="i2c.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="RTC_DS3231.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="twi.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="twi.h">
+    <Compile Include="i2c.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

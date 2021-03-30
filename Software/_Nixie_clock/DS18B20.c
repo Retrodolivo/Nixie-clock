@@ -1,9 +1,10 @@
 ﻿#include "ds18b20.h"
 
-/*dt - digital thermometer
-  find device
+/*
+	dt - digital thermometer
+	find device
 */
-char dt_testdevice(void)
+static char dt_testdevice(void)
 {
 	/*Save to stack*/
 	char stacktemp = SREG;
@@ -24,7 +25,7 @@ char dt_testdevice(void)
 	return dt;
 }
 
-void dt_sendbit (char bt)
+static void dt_sendbit (char bt)
 {
 	/*Save to stack*/
 	char stacktemp = SREG;
@@ -39,7 +40,7 @@ void dt_sendbit (char bt)
 	SREG = stacktemp;
 }
 
-void dt_sendbyte(unsigned char bt)
+static void dt_sendbyte(unsigned char bt)
 {
 	char i;
 	for(i = 0; i < 8; i++)
@@ -51,8 +52,7 @@ void dt_sendbyte(unsigned char bt)
 	}
 }
 
-
-char dt_readbit(void)
+static char dt_readbit(void)
 {
 	/*Save to stack*/	
 	char stacktemp = SREG;
@@ -69,7 +69,7 @@ char dt_readbit(void)
 	return bt;
 }
 
-unsigned char dt_readbyte()
+static unsigned char dt_readbyte()
 {
 	char c = 0;
 	char i;
@@ -79,7 +79,7 @@ unsigned char dt_readbyte()
 }
 
 /*raw data to temperature*/
-int dt_check(Temp_t *tempr)
+static int dt_tempr_raw(Temp_t *tempr)
 {
 	unsigned char bt;
 	if(dt_testdevice() == 1)
@@ -104,15 +104,27 @@ int dt_check(Temp_t *tempr)
 }
 
 /*convert to float-like - XX.X °C*/
-char converttemp(unsigned int t_raw)
+static char convert(unsigned int t_raw , enum Decimal decimal_num)
 {
-	char t_f = t_raw>>3;
-	return t_f;
+	char tt = 0;
+	switch (decimal_num)
+	{
+		case Zero:
+			tt = t_raw>>4;
+			break;
+		case One:
+			tt = t_raw>>3;
+			break;
+		case Two:
+			tt = t_raw>>2;
+			break;		
+	}	
+	return tt;
 }
 
-/*convert to integer-like - XX °C*/
-char convert(unsigned int t_raw)
+void dt_get_tempr(Temp_t *tempr, enum Decimal decimal_num)
 {
-	char t_int = t_raw>>4;
-	return t_int;
+	char tt = 0;
+	tt = convert(dt_tempr_raw(tempr), decimal_num);
+	tempr->t_f = tt;
 }

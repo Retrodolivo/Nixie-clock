@@ -15,7 +15,7 @@ void i2c_init(enum i2c_speed_t speed)
 	}
 }
 
-void i2c_start_condition(void)
+void i2c_start(void)
 {
 	/*Set HIGH at SCL(TWINT), Generate START(TWSTA), Enable I2C(TWEN)*/
 	TWCR = 1<<TWINT | 1<<TWSTA | 1<<TWEN;
@@ -23,7 +23,7 @@ void i2c_start_condition(void)
 	while(!(TWCR & 1<<TWINT));			 
 }
 
-void i2c_stop_condition(void)
+void i2c_stop(void)
 {
 	/*Clear interrupt flag(TWINT), Generate STOP(TWSTO)*/
 	TWCR = 1<<TWINT | 1<<TWSTO | 1<<TWEN;

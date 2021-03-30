@@ -1,4 +1,3 @@
-
 #ifndef MAIN_H_
 #define MAIN_H_
 
@@ -7,24 +6,56 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include <stdio.h>
 #include <stdlib.h>
 
-#include "nixie_led.h"
-#include "twi.h"
-#include "RTC_DS3231.h"
-#include "button.h"
-#include "DS18B20.h"
+enum Clock_edit_mode
+{
+	MODENONEEDIT,
+	MODEHOUREDIT,
+	MODEMINEDIT
+};
 
+enum Clock_view_mode
+{
+	MODETIMEVIEW,
+	MODETEMPERVIEW
+};
 
-#define MODETIMEVIEW 100
-#define MODETEMPERVIEW 101
-#define MODENONEEDIT 10
-#define MODEHOUREDIT 11
-#define MODEMINEDIT 12
+enum Decimal
+{
+	Zero,
+	One,
+	Two	
+};
 
-extern unsigned int button_cnt;
+typedef struct
+{
+	uint8_t sec;
+	uint8_t min;
+	uint8_t hour;
+	uint8_t day;
+	uint8_t month;
+	uint16_t year;
+} Time_t;
 
+typedef struct
+{
+	unsigned int t_raw;
+	char t_f;
+	char t_int;
+} Temp_t;
+
+struct Indication 
+{
+	Time_t t;
+	Temp_t tempr;
+};
+
+#include "rtc_ds3231.h"
+#include "i2c.h"
+#include "led.h"
+#include "buttons.h"
+#include "ds18b20.h"
 
 
 
