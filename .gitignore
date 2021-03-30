@@ -3,6 +3,10 @@ Software/_Nixie_clock/Debug/
 Software/.vs/
 _Nixie_clock.componentinfo.xml
 
+Software/RGB_Nixie/RGB_Nixie/Debug/
+Software/RGB_Nixie/.vs/
+RGB_Nixie.componentinfo.xml
+
 #Hardware
 Hardware/Altium/Nixie_clock/History/
 Hardware/Altium/Nixie_clock/Project Logs for Nixie_Clock/
