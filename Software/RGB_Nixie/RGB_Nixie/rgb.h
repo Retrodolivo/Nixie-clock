@@ -3,18 +3,32 @@
 
 #include "main.h"
 
+void port_init(void);
 void timer0_PWM_init(void);
 void timer1_PWM_init(void);
-void turn_off(unsigned char R0, unsigned char G0, unsigned char B0);
-void set_color_1(unsigned char R1, unsigned char G1, unsigned char B1);
-void set_color_2(unsigned char R2, unsigned char G2, unsigned char B2);
-void set_color_3(unsigned char R3, unsigned char G3, unsigned char B3);
-void change_color(void);
+void color_change(void);
 
 
 typedef struct
 {
 	uint8_t red, green, blue; 	
 } Color_t;
+
+typedef struct
+{
+	Color_t color;		
+} RGB_t;
+
+
+#define PWM_DDR		DDRB
+#define PWM_PORT	PORTB
+#define PWM_PIN0A	PORTB2
+#define PWM_PIN1A	PORTB3
+#define PWM_PIN1B	PORTB4
+
+#define BUTTON_DDR	DDRD
+#define BUTTON_PORT PORTD
+#define BUTTON_PIN  PORTD3
+
 
 #endif /* RGB_H_ */

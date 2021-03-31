@@ -1,9 +1,11 @@
 #include "adc3201.h"
 
+float vref = 5.0;
+
 static float convert(unsigned int dt)
 {
 	float dt1;
-	dt1=((float)dt*(5))/4096;
+	dt1=((float)dt*(vref))/4096;
 	return dt1;
 }
 

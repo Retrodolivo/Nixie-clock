@@ -1,41 +1,34 @@
 #include "main.h"
 
-void port_init()
-{	
-	//ножка OC0A 
-	DDRB |= (1<<PORTB2);
-	PORTB &= ~(1<<PORTB2);
-	//ножка OC1A 
-	DDRB |= (1<<PORTB3);
-	PORTB &= ~(1<<PORTB3);
-	//ножка OC1B
-	DDRB |= (1<<PORTB4);
-	PORTB &= ~(1<<PORTB4);	
-	// нопка
-	DDRD &= ~(1<<PORTD3);
-	PORTD |= (1<<PORTD3);
-}
 
+/*
+	Interrupt upon HIGH to LOW transition
+	Button handler
+*/
 void interrupt_init()
 {
 	GIMSK = (1<<INT1);
-	MCUCR = (1<<ISC11);//прерывание срабатывает по спадающему фронту
+	MCUCR = (1<<ISC11);
 }
 
+static void init_routine()
+{
+	interrupt_init();
+	port_init();
+	spi_init();
+	timer0_PWM_init();
+	timer1_PWM_init();
+	sei();		
+}
 
 ISR(INT1_vect)
 {
-	change_mode();
+	color_change();
 }
 
 int main(void)
 {
-	spi_init();
-	port_init();
-	init_PWM_timer0();
-	init_PWM_timer1();
-	interrupt_init();
-	sei();
+	init_routine();
     while (1) 
     {
 			
