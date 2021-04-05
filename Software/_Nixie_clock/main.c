@@ -1,9 +1,9 @@
 #include "main.h"
 
-enum i2c_speed_t		speed = Standart;
+enum i2c_speed		speed = Standart;
 enum Clock_edit_mode	clock_edit_mode = MODENONEEDIT;
 enum Clock_view_mode	clock_view_mode = MODETIMEVIEW;
-enum Decimal			decimal_num = One;
+enum Decimal		decimal_num = One;
 
 Time_t t;
 Temp_t tempr;
