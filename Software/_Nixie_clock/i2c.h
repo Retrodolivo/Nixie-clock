@@ -3,9 +3,9 @@
 
 #include "main.h"
 
-enum i2c_speed_t {Standart, Fast};
+enum i2c_speed {Standart, Fast};
 
-void i2c_init(enum i2c_speed_t speed);
+void i2c_init(enum i2c_speed speed);
 void i2c_start(void);
 void i2c_stop(void);
 void i2c_sendbyte(uint8_t byte);
