@@ -29,8 +29,8 @@ ISR(INT1_vect)
 int main(void)
 {
 	init_routine();
-    while (1) 
-    {
+    	while (1) 
+    	{
 			
 	}
 		
