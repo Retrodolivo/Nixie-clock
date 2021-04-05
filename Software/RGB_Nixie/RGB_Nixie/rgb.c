@@ -9,6 +9,7 @@ void port_init(void)
 {
 	PWM_DDR |= 1<<PWM_PIN0A | 1<<PWM_PIN1A | 1<<PWM_PIN1B;
 	PWM_PORT &= ~(1<<PWM_PIN0A | 1<<PWM_PIN1A | 1<<PWM_PIN1B);
+	
 	BUTTON_DDR &= ~(1<<BUTTON_PIN);
 	BUTTON_PORT |= 1<<BUTTON_PIN;
 }
@@ -32,7 +33,7 @@ void timer0_PWM_init(void)
 void timer1_PWM_init(void)
 {
 	TCCR1A = 1<<COM1A0 | 1<<COM1A1 | 
-			 1<<COM1B0 | 1<<COM1B1 | 1<<WGM10;
+		 1<<COM1B0 | 1<<COM1B1 | 1<<WGM10;
 	TCCR1B = 1<<WGM12 | 1<<CS11;
 }
 
