@@ -1,7 +1,7 @@
 #include "i2c.h"
 
 
-void i2c_init(enum i2c_speed_t speed)
+void i2c_init(enum i2c_speed speed)
 {
 	switch(speed)
 	{
