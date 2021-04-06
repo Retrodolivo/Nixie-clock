@@ -2,4 +2,11 @@
 ## Description
 <p align="center">
 <img src="img/header_gif_small.gif" width="60%"></p>
-A basic feature of this kind of watches is a soft and warm glow of [nixie tubes](https://en.wikipedia.org/wiki/Nixie_tube). Nixie clocks are getting more and more popular nowadays. So I also wanted to make this one. 
+
+A main feature of this kind of watches is a soft and warm glow of [nixie tubes](https://en.wikipedia.org/wiki/Nixie_tube). Nixie clocks are getting more and more popular nowadays. So I'll tell you about my nixie clock version.
+### Feartures
+* Time display (hh:mm) with the possibility of time setting via buttons.
+* External temperature display. Showing on every minute for 3 seconds. Digital thermometer is 1-wire DS18b20.
+* RGB backlight. Fixed colors changes via button on front panel. Brightness adjustment via potentiometer on back panel.
+
+### Power
