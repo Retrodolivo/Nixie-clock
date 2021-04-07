@@ -8,21 +8,21 @@ A main feature of this kind of watches is a soft and warm glow of [nixie tubes](
 
 ### Features
 * Time display (hh:mm) with the possibility of time setting via buttons.
-* External temperature display. Showing on every minute for 3 seconds. Digital thermometer is 1-wire DS18b20.
+* External temperature displaying. Showing on every minute for 3 seconds. Digital thermometer is 1-wire DS18b20.
 * RGB backlight. Fixed colors changes via button on front panel. Brightness adjustment via potentiometer on back panel.
 
 ### Power
 There are two ways of power supply designing: use of transformer or step-up converter. Transformer is a bulky solution. Also it's quite dangerous due to high voltage connector. So I decide to use a step-up converter based on popular MC34063 IC. 
 
 <p align="center">
-<img src="img/power_supply.png" width="60%"></p>
+<img src="img/power_supply.png" width="80%"></p>
 
 This is classic scheme of impulse dc-dc converter. The key principle that energy is storing in inductor and capacitor at On-state of the switch. And realising at Off-state. Switch state is controlling by PWM controller(MC34063). Elements values was chosen experimentaly according to MC34063 datasheet. Input voltage is +9 volts AC which comes from external impulse power supply unit. For logic part supply I used an linear regulator LM3805 +5 volts output.
 
 ### Logic
 
 <p align="center">
-<img src="img/clock_block.png" width="60%"></p>
+<img src="img/clock_block.png" width="40%"></p>
 
 Real time clock source is DS3231 IC. It's quite accurate RTC with an integrated temperaturecompensated crystal oscillator. I'm using it in every "clock" project.
 Cathodes are controlling via K155ID1 high voltage decoder. Its output sets according input pins states in binary. Nixie tubes are switching dynamicly at ~500Hz.
@@ -32,15 +32,21 @@ ATmega8A is a main computing unit. It performs a connection of all device units 
 ### Case
 My workshop has been updated with a 3D printer. So to print a case of nixie clock is a great opportunity to test printer out. Modelling was performed at web CAD [OnShape](onshape.com). After a few tries, I made a good looking case for my nixie clock.
 
-<p align="left">
+<p align="center">
 <img src="img/onshape_case_assemble.gif" width="60%"></p>
-<p align="right">
-<img src="img/onshape_case_disassemble.gif" width="60%"></p>
+
+
 ### Let's test it out!
 
-#### Time setting
-#### Temperature display
+#### Time setting and temperature display  
+[<img src="img/yt_preview_1.png" width="40%"></p>](https://www.youtube.com/watch?v=WjdNt0cl1Fo&ab_channel=dolivodobrovolski)
+
 #### Color changing
+[<img src="img/yt_preview_3.png" width="40%"></p>](https://www.youtube.com/watch?v=VcVOLRSXVyU&ab_channel=dolivodobrovolski)
+
+#### Case printing process
+[<img src="img/yt_preview_2.png" width="40%"></p>](https://www.youtube.com/watch?v=zNTwgohn1nY&ab_channel=dolivodobrovolski)
+
 
 
 
