@@ -4,7 +4,7 @@
 <img src="img/header_gif_small.gif" width="60%"></p>
 
 A main feature of this kind of watches is a soft and warm glow of [nixie tubes](https://en.wikipedia.org/wiki/Nixie_tube). Nixie clocks are getting more and more popular nowadays. So I'll tell you about my nixie clock version.
-### Feartures
+### Features
 * Time display (hh:mm) with the possibility of time setting via buttons.
 * External temperature display. Showing on every minute for 3 seconds. Digital thermometer is 1-wire DS18b20.
 * RGB backlight. Fixed colors changes via button on front panel. Brightness adjustment via potentiometer on back panel.
@@ -19,3 +19,4 @@ This is classic scheme of impulse dc-dc converter. The key principle that energy
 Real time clock source is DS3231 IC. It's quite accurate RTC with an integrated temperaturecompensated crystal oscillator. I'm using it in every "clock" project.
 Cathodes are controlling via K155ID1 high voltage decoder. Its output sets according input pins states in binary. Nixie tubes are switching dynamicly at ~500Hz.
 Temperature sensing is performed by 1-wire digital thermometer DS18B20. Measurments are taken every min and displayed via tubes. 
+ATmega8A is a main computing unit. It performs a connection of all device units together. It system clock source is 8MHz crystall resonator. Since all PWM pins were busy I decide to use ATtiny2313 to control color and brightness of RGB leds. Brightness is setting via potentiometer. So potential sensing is needed. As ATtiny2313 dont have internal ADC, we need an external ADC. I have a plenty of MCP3201 12-bit adc.   
