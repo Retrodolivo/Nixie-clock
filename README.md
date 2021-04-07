@@ -12,4 +12,4 @@ A main feature of this kind of watches is a soft and warm glow of [nixie tubes](
 There are two ways of power supply designing: use of transformer or step-up converter. Transformer is a bulky solution. Also it's quite dangerous due to high voltage connector. So I decide to use a step-up converter based on popular MC34063 IC.
 <p align="center">
 <img src="img/power_supply.jpeg" width="60%"></p>
-This is classic scheme of impulse converter. 
+This is classic scheme of impulse dc-dc converter. The key principle that energy is storing in inductor and capacitor at On-state of the switch. And realising at Off-state. Switch state is controlling by PWM controller(MC34063). Elements values was chosen experimentaly according to MC34063 datasheet. Input voltage is +9 volts AC which comes from external impulse power supply unit. For logic part supply I used an linear regulator LM3805 +5 volts output.    
